@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Admin Dashboard | Elements by Chef Sultan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #000;
+      --fg: #ffd54a;
+      --fg-dim: #b89529;
+      --cell: #111;
+      --line: #7a5d00;
+      --danger: #e0564a;
+      --ok: #2ecc71;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI 
+Emoji";
+      background: var(--bg);
+      color: var(--fg);
+      text-align: center;
+    }
+    header {
+      padding: 28px 16px 8px;
+    }
+    h1 {
+      margin: 0 0 18px;
+      font-size: clamp(28px, 4vw, 42px);
+      letter-spacing: 1px;
+      text-shadow: 0 0 10px var(--fg-dim);
+    }
+    .bar {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 10px 16px;
+      background: var(--fg); color: #000; border: 0; border-radius: 10px;
+      font-weight: 700; cursor: pointer;
+    }
+    .btn:hover { filter: brightness(0.95); }
+    .btn--danger { background: var(--danger); color: #fff; }
+    .btn--ghost { background: transparent; color: var(--fg); border: 1px solid var(--line); }
+    main { padding: 0 12px 40px; }
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      min-width: 1100px;
+      border-collapse: collapse;
+      background: var(--bg);
+      margin: 0 auto;
+    }
+    thead th {
+      position: sticky; top: 0; z-index: 1;
+      background: #0a0a0a;
+      font-size: 13px;
+      padding: 10px 8px;
+      border-bottom: 2px solid var(--line);
+      border-top: 1px solid var(--line);
+    }
+    tbody td {
+      background: var(--cell);
+      border-bottom: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      padding: 10px 8px;
+      font-size: 14px;
+    }
+    tbody tr:hover td { background: #141414; }
+    td.num { text-align: right; }
+    td.actions { white-space: nowrap; }
+    .chip {
+      display: inline-block;
+      padding: 4px 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--fg);
+    }
+    .chip--promo { color: #8ad3ff; border-color: #3a7ea3; }
+    .chip--confirmed { color: var(--ok); border-color: var(--ok); }
+    .grid-actions {
+      display: inline-grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+    .btn-mini { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
+    tfoot td {
+      padding: 14px 8px;
+      border-top: 2px solid var(--line);
+      background: #0a0a0a;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ADMIN DASHBOARD</h1>
+    <div class="bar">
+      <form action="{{ url_for('admin_logout') }}" method="post">
+        <button class="btn" type="submit">Logout</button>
+      </form>
+      <a class="btn btn--ghost" href="{{ url_for('admin_dashboard') }}">Refresh</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="table-wrap">
+      <table aria-label="Bookings">
+        <thead>
+          <tr>
+            <th style="min-width:90px;">NAME</th>
+            <th style="min-width:170px;">EMAIL</th>
+            <th style="min-width:130px;">PHONE</th>
+            <th style="min-width:110px;">DATE</th>
+            <th style="min-width:90px;">TIME</th>
+            <th style="min-width:80px;">GUESTS</th>
+            <th style="min-width:110px;">WITH<br/>WINE</th>
+            <th style="min-width:120px;">WITHOUT<br/>WINE</th>
+            <th style="min-width:110px;">TOTAL</th>
+            <th style="min-width:160px;">RES-PIN</th>
+            <th style="min-width:140px;">ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody>
+          {# rows: id(0), name(1), email(2), phone(3), date(4), time(5),
+                   guests(6), with_wine(7), without_wine(8), promo(9), total(10), reference(11) #}
+          {% for b in bookings %}
+          <tr>
+            <td>{{ b[1] }}</td>
+            <td>{{ b[2] }}</td>
+            <td>{{ b[3] }}</td>
+            <td>{{ b[4] }}</td>
+            <td>{{ b[5] }}</td>
+            <td class="num">{{ b[6] }}</td>
+            <td class="num">{{ "%.1f"|format(b[7]) }}</td>
+            <td class="num">{{ "%.1f"|format(b[8]) }}</td>
+            <td class="num">{{ "%.2f"|format(b[10]) }}</td>
+            <td>
+              {% if b[9] and b[9]|string|upper == "CONFIRMED" %}
+                <span class="chip chip--confirmed">CONFIRMED</span><br/>
+              {% elif b[9] %}
+                <span class="chip chip--promo">{{ b[9] }}</span><br/>
+              {% endif %}
+              <strong>{{ b[11] }}</strong>
+            </td>
+            <td class="actions">
+              <div class="grid-actions">
+                <form action="{{ url_for('admin_save_booking', id=b[0]) }}" method="post">
+                  <button class="btn btn-mini" type="submit">Save</button>
+                </form>
+                <form action="{{ url_for('admin_delete_booking', id=b[0]) }}" method="post" onsubmit="return 
+confirm('Delete this booking?');">
+                  <button class="btn btn-mini btn--danger" type="submit">Delete</button>
+                </form>
+                <form action="{{ url_for('admin_confirm_booking', id=b[0]) }}" method="post">
+                  <button class="btn btn-mini" type="submit">Confirm</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+
+        {% if bookings and bookings|length %}
+        <tfoot>
+          <tr>
+            <td colspan="8" style="text-align:right;">Total revenue shown:</td>
+            <td class="num">
+              {{
+                bookings | map(attribute=10) | sum | round(2)
+              }}
+            </td>
+            <td colspan="2"></td>
+          </tr>
+        </tfoot>
+        {% endif %}
+      </table>
+    </div>
+  </main>
+</body>
+</html>
+

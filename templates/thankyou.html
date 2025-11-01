@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Booking Confirmation | Elements by Chef Sultan</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #d4af37;
+      font-family: 'Georgia', serif;
+      text-align: center;
+      padding: 50px;
+    }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+    p {
+      margin: 8px 0;
+      font-size: 1.1em;
+    }
+    .details {
+      border: 1px solid #d4af37;
+      padding: 20px;
+      margin: 30px auto;
+      max-width: 500px;
+      text-align: left;
+      background: #111;
+      border-radius: 10px;
+    }
+    button {
+      background-color: #d4af37;
+      border: none;
+      color: black;
+      font-weight: bold;
+      padding: 12px 30px;
+      font-size: 1.1em;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      background-color: #e5c454;
+    }
+    .policy {
+      margin-top: 40px;
+      font-size: 0.9em;
+      color: #bfa14a;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Thank you, we have received your booking request</h1>
+  <p>Please copy the total amount and follow the payment link to complete your reservation.</p>
+  <p>Once payment is received you will receive a confirmation via email.</p>
+
+  <div class="details">
+   <p><strong>Name:</strong> {{ booking.name }}</p>
+   <p><strong>Email:</strong> {{ booking.email }}</p>
+   <p><strong>Date:</strong> {{ booking.date }}</p>
+   <p><strong>Time:</strong> {{ booking.time }}</p>
+   <p><strong>Guests:</strong> {{ booking.guests }}</p>
+   <p><strong>Total:</strong> £{{ booking.total }}</p>
+   <p><strong>Res-pin:</strong> {{ booking.res_pin }}</p>
+  </div>
+
+  <button onclick="window.location.href='https://pay.sumup.com/b2c/QCGS6E51'">GO TO PAYMENT</button>
+
+  <div class="policy">
+    <h3>Cancellation & Seating Policy</h3>
+    <p>Cancellations must be made 48 hours prior to reservation. Your table will be held for 15 minutes 
+after the booking time; after that, your deposit becomes non-refundable.</p>
+    <p>We kindly remind you that tables must be returned within 2 hours after checking in.</p>
+    <p>Children under the age of 12 are not permited.</p>
+  </div>
+</body>
+</html>
+

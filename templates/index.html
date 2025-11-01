@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elements by Chef Sultan</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    body {
+      background-color: #000;
+      color: #d4af37;
+      font-family: 'Georgia', serif;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    header {
+      padding: 20px 0;
+      border-bottom: 1px solid #d4af37;
+    }
+
+    img.logo {
+      width: 150px;
+      height: auto;
+      filter: drop-shadow(0 0 15px gold);
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 30px;
+    }
+
+    .brand {
+      font-size: 2.4em;
+      font-weight: bold;
+      color: #d4af37;
+    }
+
+    .socials img {
+      width: 28px;
+      height: 28px;
+      margin-left: 15px;
+      filter: invert(77%) sepia(75%) saturate(247%) hue-rotate(13deg) brightness(99%) contrast(94%);
+      transition: 0.3s;
+    }
+
+    .socials img:hover {
+      filter: invert(95%) sepia(80%) saturate(280%) hue-rotate(20deg) brightness(110%) contrast(95%);
+    }
+
+    .experience {
+      font-size: 1.8em;
+      font-weight: bold;
+      width: 80%;
+      margin: 50px auto;
+      line-height: 1.6em;
+    }
+
+    /* --- Video Gallery --- */
+    .video-gallery {
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+      margin-bottom: 50px;
+      flex-wrap: wrap;
+    }
+
+    .video-container {
+      position: relative;
+      width: 30%;
+      min-width: 300px;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      border: 2px solid #d4af37;
+      border-radius: 10px;
+      box-shadow: 0 0 15px #d4af37;
+      cursor: pointer;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    .video-container:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 40px gold;
+    }
+
+    .video-container video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* --- Fullscreen Popup --- */
+    .video-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .video-overlay video {
+      width: 80%;
+      max-width: 1000px;
+      border: 3px solid #d4af37;
+      border-radius: 10px;
+      box-shadow: 0 0 50px gold;
+    }
+
+    /* --- Backstory Section --- */
+    .backstory {
+      width: 80%;
+      margin: 50px auto;
+    }
+
+    .backstory img {
+      width: 100%;
+      border-radius: 10px;
+      border: 2px solid #d4af37;
+      box-shadow: 0 0 25px #d4af37;
+    }
+
+    footer {
+      margin-top: 40px;
+      padding: 20px;
+      font-size: 0.9em;
+      color: #888;
+    }
+
+    @media (max-width: 768px) {
+      .video-container {
+        width: 90%;
+      }
+    }
+.action-buttons {
+  text-align: center;
+  margin: 60px 0;
+}
+
+.btn-main, .btn-admin {
+  display: inline-block;
+  background: #d4af37;
+  color: #000;
+  padding: 14px 28px;
+  margin: 10px;
+  font-size: 1.1em;
+  font-weight: bold;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: 1px solid #d4af37;
+  box-shadow: 0 0 10px #d4af37;
+}
+
+.btn-main:hover, .btn-admin:hover {
+  background: #b89c30;
+  box-shadow: 0 0 25px gold;
+  transform: scale(1.05);
+}
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="{{ url_for('static', filename='logo.PNG') }}" alt="Elements Logo" class="logo">
+  </header>
+<p style="text-align:center; margin-top:8px;">
+  <a href="https://maps.app.goo.gl/DKBxXBMroWE14Z2R6" 
+     target="_blank" 
+     style="color:#d4af37; text-decoration:underline;">
+     Windsor Guildhall
+  </a>
+</p>
+
+  <nav>
+    <div class="brand">Elements by Chef Sultan</div>
+    <div class="socials">
+      <a href="https://instagram.com/sultanselements" target="_blank">
+        <img src="{{ url_for('static', filename='instagram.svg') }}" alt="Instagram">
+      </a>
+      <a href="https://tiktok.com/@sultanselements" target="_blank">
+        <img src="{{ url_for('static', filename='tiktok.svg') }}" alt="TikTok">
+      </a>
+    </div>
+  </nav>
+
+  <div class="experience">
+    A Seven Course indulging experience, Designed to Illustrate contemporary fusion Dishes & flavors from around 
+the world
+  </div>
+
+  <!-- Video Gallery -->
+  <section class="video-gallery">
+    <div class="video-container" onclick="openFullscreen('video1.mp4')">
+      <video autoplay muted loop playsinline>
+        <source src="{{ url_for('static', filename='video1.mp4') }}" type="video/mp4">
+      </video>
+    </div>
+    <div class="video-container" onclick="openFullscreen('video2.mp4')">
+      <video autoplay muted loop playsinline>
+        <source src="{{ url_for('static', filename='video2.mp4') }}" type="video/mp4">
+      </video>
+    </div>
+    <div class="video-container" onclick="openFullscreen('video3.mp4')">
+      <video autoplay muted loop playsinline>
+        <source src="{{ url_for('static', filename='video3.mp4') }}" type="video/mp4">
+      </video>
+    </div>
+  </section>
+
+  <!-- Fullscreen Overlay -->
+  <div class="video-overlay" id="videoOverlay" onclick="closeFullscreen()">
+    <video id="fullscreenVideo" controls autoplay></video>
+  </div>
+
+  <!-- Backstory Section -->
+  <section class="backstory">
+    <img src="{{ url_for('static', filename='backstory.jpg') }}" alt="Backstory Image">
+  </section>
+<!-- Menu Section -->
+<section class="menu">
+  <h2>Elements by Chef Sultan</h2>
+  <h3>Seven Course Tasting Menu</h3>
+  <p class="subtitle">Designed to Illustrate contemporary fusion Dishes & flavors from around the world.</p>
+  <p class="price">£200 PP&nbsp;&nbsp;|&nbsp;&nbsp;£250 PP “Wine Pairing”</p>
+
+  <div class="menu-item">
+    <strong>First Course – Octo Carpaccio</strong><br>
+    Chargrilled octopus carpaccio topped with grated bottarga & salmon caviar, lemongrass tea & radish Saki 
+dressing.<br>
+    <em>Saki · Ouzo · Pinot Grigio · Sauvignon Blanc</em>
+  </div>
+
+  <div class="menu-item">
+    <strong>Second Course – Spicy Okra Tacos</strong><br>
+    Shallow fried okra with garlic & herb sauce served in a chapati taco.<br>
+    <em>Sauvignon Blanc · Pinot Grigio</em>
+  </div>
+
+  <div class="menu-item">
+    <strong>Third Course – Aromatic Quail</strong><br>
+    Shallow fried quail on a bed of slow-cooked barley risotto with a thick aromatic broth.<br>
+    <em>Malbec · Merlot</em>
+  </div>
+
+  <div class="menu-item">
+    <strong>Fourth Course – Duck in Shells</strong><br>
+    Pasta shells stuffed with duck breast, pine nuts, sun-dried tomato & sultanas, baby caramelised shallots in 
+a duck jus & white wine reduction.<br>
+    <em>Merlot · Malbec</em>
+  </div>
+
+  <div class="menu-item">
+    <strong>Fifth Course – Forest Moussaka</strong><br>
+    Fried aubergine in duck fat layered with slow-cooked ragu & potato mash, topped with parmesan crisps.<br>
+    <em>Merlot · Malbec</em>
+  </div>
+
+  <div class="menu-item">
+    <strong>Sixth Course – Lamb Kabuli</strong><br>
+    Slow-cooked lamb shank on orange-flavoured basmati kabuli rice, served with spicy green dakkus & mint 
+yoghurt dip, topped with crispy onions.<br>
+    <em>Merlot · Malbec · Whiskey</em>
+  </div>
+
+  <div class="menu-item">
+    <strong>Seventh Course – Basbusa Pistachio Cheesecake Sandwich</strong><br>
+    With cane molasses & tahini ice cream.<br>
+    <em>Port · Dessert Wine · Whiskey · Brandy</em>
+  </div>
+
+  <p class="disclaimer">
+    <strong>Food Allergy Notice:</strong><br>
+    All dishes may contain fish, milk, eggs, wheat, gluten, peanuts, or tree nuts.<br>
+    Not suitable for vegans, vegetarians, or pescatarians.
+  </p>
+</section>
+
+<!-- Booking & Admin Buttons -->
+<section class="action-buttons">
+  <a href="{{ url_for('booking') }}" class="btn-main">Book Your Experience</a>
+  <a href="{{ url_for('admin_login') }}" class="btn-admin">Admin Login</a>
+</section>
+
+</section>
+
+  <footer>
+    &copy; Elements by Chef Sultan
+  </footer>
+
+  <script>
+    const overlay = document.getElementById('videoOverlay');
+    const fullscreenVideo = document.getElementById('fullscreenVideo');
+
+    function openFullscreen(videoFile) {
+      fullscreenVideo.src = `/static/${videoFile}`;
+      overlay.style.display = 'flex';
+      fullscreenVideo.play();
+    }
+
+    function closeFullscreen() {
+      overlay.style.display = 'none';
+      fullscreenVideo.pause();
+      fullscreenVideo.src = '';
+    }
+  </script>
+<p style="text-align:center; margin-top:30px;">
+  <a href="https://maps.app.goo.gl/DKBxXBMroWE14Z2R6" 
+     target="_blank" 
+     style="color:#d4af37; text-decoration:underline;">
+     Windsor Guildhall
+  </a>
+</p>
+
+</body>
+</html>
+

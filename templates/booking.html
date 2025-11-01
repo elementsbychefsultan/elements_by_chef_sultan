@@ -1,0 +1,167 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Your Experience | Elements by Chef Sultan</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            background-color: #000;
+            color: #d4af37;
+            font-family: 'Georgia', serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            padding: 20px 0;
+            border-bottom: 1px solid #d4af37;
+        }
+        h1 {
+            font-size: 2.5em;
+            color: #f5d76e;
+            margin: 40px 0 10px;
+        }
+        form {
+            background: #111;
+            padding: 25px;
+            margin: 40px auto;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 10px;
+            border: 1px solid #d4af37;
+            box-shadow: 0 0 10px #d4af37;
+        }
+        input, select, button {
+            width: 90%;
+            margin: 10px auto;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #d4af37;
+            background: #000;
+            color: #d4af37;
+            font-size: 1em;
+        }
+        button {
+            background: #d4af37;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #b89c30;
+        }
+        .error {
+            color: #ff3333;
+            background: rgba(255, 0, 0, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 20px auto;
+            width: 80%;
+        }
+        p.notice {
+            font-size: 0.9em;
+            color: #aaa;
+        }
+        img.logo {
+            width: 150px;
+            height: auto;
+            filter: drop-shadow(0 0 10px gold);
+        }
+    </style>
+</head>
+<body>
+<header>
+    <img src="{{ url_for('static', filename='logo.PNG') }}" alt="Elements Logo" class="logo">
+</header>
+
+<h1>Book Your Experience</h1>
+
+{% if error %}
+<div class="error">{{ error }}</div>
+{% endif %}
+
+    <form action="{{ url_for('booking') }}" method="POST">
+    <input type="hidden" name="csrf_token" value="dummy">
+    <input type="text" name="name" placeholder="Full Name" required>
+    <input type="email" name="email" placeholder="Email Address" required>
+    <input type="tel" name="phone" placeholder="Mobile Number" required>
+
+    <label for="date"></label>
+    <input type="date" id="date" name="date" required>
+
+    <label for="time"></label>
+    <select name="time" required>
+        <option value="">-- Choose a seating time --</option>
+        <option value="18:30">18:30</option>
+        <option value="19:30">19:30</option>
+        <option value="20:30">20:30</option>
+    </select>
+
+    <label for="guests">Number of Guests</label>
+    <input type="number" id="guests" name="guests" min="2" max="6" required><br>
+
+    <label for="with_wine">Guests With Wine (£250 each):</label>
+    <input type="number" id="with_wine" name="with_wine" min="0" max="6" value="0" required><br>
+
+    <label for="without_wine">Guests Without Wine (£200 each):</label>
+    <input type="number" id="without_wine" name="without_wine" min="0" max="6" value="0" required><br>
+
+    <input type="text" name="promo" placeholder="Promo Code (optional)">
+
+    <p class="notice">
+        Tables must be vacated within 2 hours after your seating time.  
+        Bookings have a 15-minute grace period.  
+        Cancellations must be made 48 hours prior via email.  
+        Children under the age of 12 are not allowed.
+    </p>
+
+    <button type="submit">Proceed to Booking</button>
+</form>
+
+<script>
+    // Adjust wine counts dynamically
+    document.getElementById("with_wine").addEventListener("input", function() {
+        const totalGuests = parseInt(document.getElementById("guests").value) || 0;
+        const withWine = parseInt(this.value) || 0;
+        const withoutWineField = document.getElementById("without_wine");
+        withoutWineField.max = totalGuests - withWine;
+    });
+    document.getElementById("without_wine").addEventListener("input", function() {
+        const totalGuests = parseInt(document.getElementById("guests").value) || 0;
+        const withoutWine = parseInt(this.value) || 0;
+        const withWineField = document.getElementById("with_wine");
+        withWineField.max = totalGuests - withoutWine;
+    });
+
+    // Restrict date selection to valid Fridays & Saturdays in event windows
+    const allowedRanges = [
+        [new Date("2025-11-08"), new Date("2025-12-20")],
+        [new Date("2026-01-09"), new Date("2026-02-14")]
+    ];
+
+    const dateInput = document.getElementById("date");
+    dateInput.addEventListener("input", function() {
+        const selectedDate = new Date(this.value);
+        const day = selectedDate.getDay(); // 0=Sun ... 6=Sat
+        let valid = false;
+        for (const [start, end] of allowedRanges) {
+            if (selectedDate >= start && selectedDate <= end && (day === 5 || day === 6)) {
+                valid = true;
+                break;
+            }
+        }
+        if (!valid) {
+            alert("Bookings are only available on Fridays and Saturdays within event dates.");
+            this.value = "";
+        }
+    });
+
+    // Limit selectable dates
+    dateInput.setAttribute("min", "2025-11-07");
+    dateInput.setAttribute("max", "2026-02-14");
+</script>
+</body>
+</html>
+

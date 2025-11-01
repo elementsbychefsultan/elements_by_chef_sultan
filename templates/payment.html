@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment | Elements by Chef Sultan</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    body {
+      background-color: #000;
+      color: #d4af37;
+      font-family: 'Georgia', serif;
+      text-align: center;
+      padding: 80px 20px;
+    }
+    h1 {
+      color: #f5d76e;
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+    h2 {
+      color: #fff;
+      font-size: 1.8em;
+      margin-top: 20px;
+    }
+    p {
+      font-size: 1.2em;
+      color: #d4af37;
+      line-height: 1.6;
+      margin: 20px auto;
+      max-width: 700px;
+    }
+    .ref {
+      font-size: 1.4em;
+      color: #fff;
+      background-color: #111;
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: 1px solid #d4af37;
+      display: inline-block;
+      margin-top: 10px;
+    }
+    .btn {
+      display: inline-block;
+      background-color: #d4af37;
+      color: #000;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 12px 30px;
+      border-radius: 8px;
+      margin-top: 25px;
+      transition: 0.3s;
+      font-size: 1.1em;
+    }
+    .btn:hover {
+      background-color: #f5d76e;
+      color: #111;
+    }
+    footer {
+      margin-top: 60px;
+      color: #888;
+      font-size: 1em;
+    }
+  </style>
+</head>
+<body>
+  <h1>Thank You for Your Booking</h1>
+
+  <p>{{ message|safe }}</p>
+
+  <h2>Your Booking Reference:</h2>
+  <div class="ref">#{{ ref }}</div>
+
+  <p>Please click the button below to complete your payment.</p>
+
+  <a href="{{ sumup_link }}" class="btn" target="_blank">Go to Payment</a>
+
+  <p>
+    ⚜️ <strong>Important:</strong> Copy the exact amount above and paste it into the payment page.<br>
+    Your booking will be confirmed once payment is received.
+  </p>
+
+  <footer>
+    <p>© 2025 Elements by Chef Sultan. All rights reserved.</p>
+  </footer>
+</body>
+</html>
+

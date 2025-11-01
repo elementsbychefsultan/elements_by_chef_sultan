@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            background-color: #000;
+            color: #d4af37;
+            font-family: 'Georgia', serif;
+            text-align: center;
+            padding: 50px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 1.2em;
+            margin-bottom: 40px;
+        }
+
+        table {
+            width: 90%;
+            margin: auto;
+            border-collapse: collapse;
+            background-color: #111;
+            border: 2px solid #d4af37;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+            font-size: 1.1em;
+        }
+
+        th, td {
+            border: 1px solid #d4af37;
+            padding: 12px;
+        }
+
+        th {
+            background-color: #222;
+            color: #f5d76e;
+            font-size: 1.1em;
+        }
+
+        tr:nth-child(even) {
+            background-color: #1a1a1a;
+        }
+
+        tr:hover {
+            background-color: #333;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            color: #000;
+            background-color: #d4af37;
+            transition: 0.3s;
+            margin: 4px;
+        }
+
+        .btn:hover {
+            background-color: #f5d76e;
+            color: #111;
+        }
+
+        .btn-logout {
+            display: block;
+            width: fit-content;
+            margin: 40px auto 0;
+            background-color: #d4af37;
+            color: #000;
+            font-size: 1.1em;
+            padding: 12px 24px;
+            border-radius: 10px;
+        }
+
+        .btn-logout:hover {
+            background-color: #f5d76e;
+        }
+
+        select, input {
+            background-color: #111;
+            color: #f5d76e;
+            border: 1px solid #d4af37;
+            border-radius: 5px;
+            padding: 6px;
+        }
+
+        button.save {
+            background-color: #f5d76e;
+            color: #111;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+
+        button.save:hover {
+            background-color: #d4af37;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Dashboard</h1>
+        <p>Welcome, Admin. Manage your current bookings below:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Guests</th>
+                    <th>Total (£)</th>
+                    <th>Reference</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bookings %}
+                <tr>
+                    <form action="{{ url_for('update_booking', id=b[0]) }}" method="POST">
+                        <td>{{ b[0] }}</td>
+                        <td><input type="text" name="name" value="{{ b[1] }}"></td>
+                        <td><input type="text" name="email" value="{{ b[2] }}"></td>
+                        <td><input type="date" name="date" value="{{ b[4] }}"></td>
+                        <td><input type="time" name="time" value="{{ b[5] }}"></td>
+                        <td>
+                            <select name="guests">
+                                {% for g in range(1, 11) %}
+                                    <option value="{{ g }}" {% if g == b[6] %}selected{% endif %}>{{ g }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td><input type="text" name="price" value="{{ b[9] }}"></td>
+                        <td>{{ b[10] }}</td>
+                        <td>
+                            <button type="submit" class="save">💾</button>
+                            <a href="{{ url_for('delete_booking', id=b[0]) }}" class="btn">🗑 Delete</a>
+                        </td>
+                    </form>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="{{ url_for('admin_logout') }}" class="btn-logout">Logout</a>
+    </div>
+</body>
+</html>
+

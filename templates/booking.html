@@ -89,7 +89,14 @@
     <input type="tel" name="phone" placeholder="Mobile Number" required>
 
     <label for="date"></label>
-    <input type="date" id="date" name="date" required>
+    <input
+    type="date"
+    id="date"
+    name="date"
+    min=""
+    placeholder="Select date"
+    style="background-color:#000; color:#d4af37; border:1px solid #d4af37; padding:10px; border-radius:6px; font-size:16px;"
+  >
 
     <label for="time"></label>
     <select name="time" required>
@@ -161,6 +168,17 @@
     // Limit selectable dates
     dateInput.setAttribute("min", "2025-11-07");
     dateInput.setAttribute("max", "2026-02-14");
+</script>
+<script>
+  // Ensure today's date is the minimum and no default is pre-selected
+  document.addEventListener("DOMContentLoaded", function() {
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('date');
+    if (dateInput) {
+      dateInput.setAttribute('min', today);
+      dateInput.value = ""; // make sure it’s blank
+    }
+  });
 </script>
 </body>
 </html>

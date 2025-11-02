@@ -182,27 +182,11 @@ pointer-events:none;">
                 valid = true;
                 break;
             }
-        }
-        if (!valid) {
-            alert("Bookings are only available on Fridays and Saturdays within event dates.");
-            this.value = "";
-        }
     });
 
     // Limit selectable dates
-    dateInput.setAttribute("min", "2025-11-07");
+    dateInput.setAttribute("min", "2025-11-08");
     dateInput.setAttribute("max", "2026-02-14");
-</script>
-<script>
-  // Ensure today's date is the minimum and no default is pre-selected
-  document.addEventListener("DOMContentLoaded", function() {
-    const today = new Date().toISOString().split('T')[0];
-    const dateInput = document.getElementById('date');
-    if (dateInput) {
-      dateInput.setAttribute('min', today);
-      dateInput.value = ""; // make sure it’s blank
-    }
-  });
 </script>
 <script>
   // Ensure today's date is the minimum and no default is pre-selected

@@ -97,7 +97,6 @@
     id="date"
     name="date"
     min=""
-    value=""
     style="
       background-color:#000;
       color:#d4af37;
@@ -219,29 +218,30 @@ pointer-events:none;">
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const dateInput = document.getElementById("date");
+  if (!dateInput) return;
 
-  if (dateInput) {
-    const today = new Date().toISOString().split("T")[0];
-    dateInput.min = today;
-    dateInput.value = "";
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  dateInput.min = `${yyyy}-${mm}-${dd}`;
 
-    // Wait until user selects a date before checking day
-    dateInput.addEventListener("change", function () {
-      const selected = new Date(this.value);
-      const day = selected.getDay(); // 0=Sun, 5=Fri, 6=Sat
+  // Disable all non-Friday/Saturday days dynamically
+  dateInput.addEventListener("input", function () {
+    const selected = new Date(this.value);
+    const day = selected.getDay(); // 0=Sun ... 6=Sat
+    if (day !== 5 && day !== 6) {
+      // find nearest Friday/Saturday ahead
+      const diff = day < 5 ? 5 - day : (day === 6 ? 0 : 12 - day);
+      selected.setDate(selected.getDate() + diff);
+      this.value = selected.toISOString().split("T")[0];
+    }
+  });
 
-      if (day !== 5 && day !== 6) {
-        alert("Bookings are only available on Fridays and Saturdays within event dates.");
-        this.value = "";
-      }
-    });
-
-    // Keep gold theme after date selection
-    dateInput.addEventListener("input", () => {
-      dateInput.style.color = "#d4af37";
-      dateInput.style.backgroundColor = "#000";
-    });
-  }
+  dateInput.addEventListener("change", () => {
+    dateInput.style.color = "#d4af37";
+    dateInput.style.backgroundColor = "#000";
+  });
 });
 </script>
 </body>

@@ -89,28 +89,29 @@
     <input type="email" name="email" placeholder="Email Address" required>
     <input type="tel" name="phone" placeholder="Mobile Number" required>
 
-    <!-- Date Selector -->
-  <label for="date" style="color:#d4af37;">Select Date:</label><br>
-  <input
-   type="date"
-   id="date"
-   name="date"
-   min=""
-   value=""
-   style="
+<!-- Date Selector -->
+<label for="date" style="color:#d4af37;">Select Date:</label><br>
+<input
+  type="date"
+  id="date"
+  name="date"
+  min=""
+  value=""
+  style="
     background-color:#000;
     color:#d4af37;
     border:1px solid #d4af37;
     padding:10px;
     border-radius:6px;
     font-size:16px;
+    width:100%;
+    text-align:center;
     appearance:none;
     -webkit-appearance:none;
-    text-align:center;
-    width:100%;
-   "
-    onfocus="this.showPicker ? this.showPicker() : null;"
-   >
+  "
+  onfocus="this.dataset.focused='true';"
+  onclick="event.stopPropagation();"
+>
 
     <label for="time"></label>
     <select name="time" required>
@@ -209,13 +210,18 @@
 document.addEventListener("DOMContentLoaded", function () {
   const dateInput = document.getElementById("date");
   if (dateInput) {
-    // today’s date in YYYY-MM-DD
     const today = new Date().toISOString().split("T")[0];
-    // set minimum selectable date to today
     dateInput.min = today;
-    // clear any pre-selected date
     dateInput.value = "";
-    // ensure text color is gold after user selection
+
+    // ensure focus doesn't auto-scroll
+    dateInput.addEventListener("focus", function (e) {
+      setTimeout(() => {
+        window.scrollTo({ top: dateInput.offsetTop - 100, behavior: "smooth" });
+      }, 300);
+    });
+
+    // make sure text color stays gold after selecting a date
     dateInput.addEventListener("change", () => {
       dateInput.style.color = "#d4af37";
       dateInput.style.backgroundColor = "#000";

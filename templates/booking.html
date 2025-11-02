@@ -91,27 +91,37 @@
 
 <!-- Date Selector -->
 <label for="date" style="color:#d4af37;">Select Date:</label><br>
-<input
-  type="date"
-  id="date"
-  name="date"
-  min=""
-  value=""
-  style="
-    background-color:#000;
-    color:#d4af37;
-    border:1px solid #d4af37;
-    padding:10px;
-    border-radius:6px;
-    font-size:16px;
-    width:100%;
-    text-align:center;
-    appearance:none;
-    -webkit-appearance:none;
-  "
-  onfocus="this.dataset.focused='true';"
-  onclick="event.stopPropagation();"
->
+<div style="position: relative; display: inline-block; width: 100%;">
+  <input
+    type="date"
+    id="date"
+    name="date"
+    min=""
+    value=""
+    style="
+      background-color:#000;
+      color:#d4af37;
+      border:1px solid #d4af37;
+      padding:10px;
+      border-radius:6px;
+      font-size:16px;
+      width:100%;
+      text-align:center;
+      appearance:none;
+      -webkit-appearance:none;
+      cursor:pointer;
+    "
+  >
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+       fill="#d4af37"
+       width="22px" height="22px"
+       style="position:absolute; right:12px; top:50%; transform:translateY(-50%); 
+pointer-events:none;">
+       <path d="M7 10h5v5H7z"/><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .89-2 
+       2v16c0 1.11.89 2 2 2h14c1.11 0 2-.89 
+       2-2V5c0-1.11-.89-2-2-2zm0 18H5V8h14v13z"/>
+  </svg>
+</div>
 
     <label for="time"></label>
     <select name="time" required>
@@ -209,20 +219,25 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const dateInput = document.getElementById("date");
+
   if (dateInput) {
     const today = new Date().toISOString().split("T")[0];
     dateInput.min = today;
     dateInput.value = "";
 
-    // ensure focus doesn't auto-scroll
-    dateInput.addEventListener("focus", function (e) {
-      setTimeout(() => {
-        window.scrollTo({ top: dateInput.offsetTop - 100, behavior: "smooth" });
-      }, 300);
+    // Wait until user selects a date before checking day
+    dateInput.addEventListener("change", function () {
+      const selected = new Date(this.value);
+      const day = selected.getDay(); // 0=Sun, 5=Fri, 6=Sat
+
+      if (day !== 5 && day !== 6) {
+        alert("Bookings are only available on Fridays and Saturdays within event dates.");
+        this.value = "";
+      }
     });
 
-    // make sure text color stays gold after selecting a date
-    dateInput.addEventListener("change", () => {
+    // Keep gold theme after date selection
+    dateInput.addEventListener("input", () => {
       dateInput.style.color = "#d4af37";
       dateInput.style.backgroundColor = "#000";
     });

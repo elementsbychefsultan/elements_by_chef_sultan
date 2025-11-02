@@ -174,6 +174,20 @@ def admin_confirm_booking(id):
     conn.commit()
     conn.close()
     return redirect(url_for("admin_dashboard"))
+# ===== REFRESH BOOKINGS (Admin) =====
+@app.route("/admin_refresh")
+def admin_refresh():
+    # Only allow refresh if logged in as admin
+    if not session.get("logged_in"):
+        return redirect(url_for("admin_login"))
+
+    conn = sqlite3.connect("elements.db")
+    c = conn.cursor()
+    c.execute("SELECT * FROM bookings ORDER BY date, time")
+    bookings = c.fetchall()
+    conn.close()
+
+    return render_template("admin_dashboard.html", bookings=bookings)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

@@ -89,16 +89,28 @@
     <input type="email" name="email" placeholder="Email Address" required>
     <input type="tel" name="phone" placeholder="Mobile Number" required>
 
-    <label for="date"></label>
-    <input
-     type="date"
-     id="date"
-     name="date"
-     min=""
-     placeholder="Select date"
-     style="background-color:#000; color:#d4af37; border:1px solid #d4af37; padding:10px; 
-     border-radius:6px; font-size:16px;"
-    >
+    <!-- Date Selector -->
+  <label for="date" style="color:#d4af37;">Select Date:</label><br>
+  <input
+   type="date"
+   id="date"
+   name="date"
+   min=""
+   value=""
+   style="
+    background-color:#000;
+    color:#d4af37;
+    border:1px solid #d4af37;
+    padding:10px;
+    border-radius:6px;
+    font-size:16px;
+    appearance:none;
+    -webkit-appearance:none;
+    text-align:center;
+    width:100%;
+   "
+    onfocus="this.showPicker ? this.showPicker() : null;"
+   >
 
     <label for="time"></label>
     <select name="time" required>
@@ -192,6 +204,24 @@
       dateInput.value = ""; // make sure it’s blank
     }
   });
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const dateInput = document.getElementById("date");
+  if (dateInput) {
+    // today’s date in YYYY-MM-DD
+    const today = new Date().toISOString().split("T")[0];
+    // set minimum selectable date to today
+    dateInput.min = today;
+    // clear any pre-selected date
+    dateInput.value = "";
+    // ensure text color is gold after user selection
+    dateInput.addEventListener("change", () => {
+      dateInput.style.color = "#d4af37";
+      dateInput.style.backgroundColor = "#000";
+    });
+  }
+});
 </script>
 </body>
 </html>

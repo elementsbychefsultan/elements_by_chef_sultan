@@ -38,22 +38,22 @@ def booking():
         return render_template("booking.html", error="Fully booked, please choose another date or time.")
 
     # ---- Pricing ----
-    PRICE_WITH_WINE = 250
-    PRICE_WITHOUT_WINE = 200
+    PRICE_WITH_WINE = 195
+    PRICE_WITHOUT_WINE = 160
 
     base_total = (with_wine * PRICE_WITH_WINE) + (without_wine * PRICE_WITHOUT_WINE)
     discount_pct = 0
 
     # Auto discounts (no promo)
     if guests >= 6:
-        discount_pct = 15
-    elif 4 <= guests <= 5:
         discount_pct = 10
+    elif 4 <= guests <= 5:
+        discount_pct = 7
     elif guests <= 3:
         if promo == "elements@10":
             discount_pct = 10
-        elif promo == "elements@15":
-            discount_pct = 15
+        elif promo == "elements@7":
+            discount_pct = 7
 
     # Apply discount
     total = base_total - (base_total * discount_pct / 100)

@@ -123,10 +123,6 @@ pointer-events:none;">
 </div>
 
     <label for="time"></label>
-    <option 
-value="19:30">19:30</option>
-    <option 
-value="20:30">20:30</option>
 </select>
 <select name="time" required>
     <option value="" disabled selected>Select a time</option>
@@ -228,6 +224,29 @@ document.addEventListener("DOMContentLoaded", function () {
   dateInput.addEventListener("change", () => {
     dateInput.style.color = "#d4af37";
     dateInput.style.backgroundColor = "#000";
+  });
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const dateInput = document.getElementById("date");
+  if (!dateInput) return;
+
+  // Set allowed range
+  const minDate = new Date("2025-11-14");
+  const maxDate = new Date("2025-12-20");
+  dateInput.min = minDate.toISOString().split("T")[0];
+  dateInput.max = maxDate.toISOString().split("T")[0];
+
+  // Restrict to Fridays & Saturdays only
+  dateInput.addEventListener("input", function () {
+    const selected = new Date(this.value);
+    const day = selected.getDay(); // 0 = Sun ... 6 = Sat
+
+    // If not Friday (5) or Saturday (6), clear selection
+    if (day !== 5 && day !== 6) {
+      this.value = "";
+    }
   });
 });
 </script>

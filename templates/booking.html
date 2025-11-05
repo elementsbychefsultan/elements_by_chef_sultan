@@ -123,12 +123,18 @@ pointer-events:none;">
 </div>
 
     <label for="time"></label>
-    <select name="time" required>
-        <option value="">-- Choose a seating time --</option>
-        <option value="18:30">18:30</option>
-        <option value="19:30">19:30</option>
-        <option value="20:30">20:30</option>
-    </select>
+        <option 
+value="18:30">18:30</option>
+    <option 
+value="19:30">19:30</option>
+    <option 
+value="20:30">20:30</option>
+</select>
+<select name="time" required>
+    <option value="" disabled selected>Select a time</option>
+    <option value="19:30">19:30</option>
+    <option value="20:30">20:30</option>
+</select>
 
     <label for="guests">Number of Guests</label>
     <input type="number" id="guests" name="guests" min="2" max="6" required><br>
@@ -167,7 +173,7 @@ pointer-events:none;">
 
     // Restrict date selection to valid Fridays & Saturdays in event windows
     const allowedRanges = [
-        [new Date("2025-11-08"), new Date("2025-12-20")],
+        [new Date("2025-11-14"), new Date("2025-12-20")],
         [new Date("2026-01-09"), new Date("2026-02-14")]
     ];
 

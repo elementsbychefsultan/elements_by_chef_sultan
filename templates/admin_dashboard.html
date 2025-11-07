@@ -131,7 +131,7 @@ Emoji";
           {# rows: id(0), name(1), email(2), phone(3), date(4), time(5),
                    guests(6), with_wine(7), without_wine(8), promo(9), total(10), reference(11) #}
           {% for b in bookings %}
-          <tr>
+          <tr data-id="{{ b[0] }}">
             <td>{{ b[1] }}</td>
             <td>{{ b[2] }}</td>
             <td>{{ b[3] }}</td>
@@ -150,19 +150,12 @@ Emoji";
               <strong>{{ b[11] }}</strong>
             </td>
             <td class="actions">
-              <div class="grid-actions">
-                <form action="{{ url_for('admin_save_booking', id=b[0]) }}" method="post">
-                  <button class="btn btn-mini" type="submit">Save</button>
-                </form>
-                <form action="{{ url_for('admin_delete_booking', id=b[0]) }}" method="post" onsubmit="return 
-confirm('Delete this booking?');">
-                  <button class="btn btn-mini btn--danger" type="submit">Delete</button>
-                </form>
-                <form action="{{ url_for('admin_confirm_booking', id=b[0]) }}" method="post">
-                  <button class="btn btn-mini" type="submit">Confirm</button>
-                </form>
-              </div>
+            <button class="btn btn-mini btn-warning" onclick="enableEdit('{{ b[0] }}')">Edit</button>
+            <button class="btn btn-mini btn-danger" onclick="deleteBooking('{{ b[0] }}')">Delete</button>
+            <button class="btn btn-mini btn-success" onclick="confirmBooking('{{ b[0] }}')">Confirm</button>
             </td>
+            <td class="actions">
+              <div class="grid-actions">
           </tr>
           {% endfor %}
         </tbody>
@@ -183,6 +176,68 @@ confirm('Delete this booking?');">
       </table>
     </div>
   </main>
+<script>
+function enableEdit(id) {
+  const row = document.querySelector(`[data-id='${id}']`);
+  if (!row) return;
+
+  const cells = row.querySelectorAll("td:not(:last-child)");
+  cells.forEach(cell => {
+    cell.contentEditable = true;
+    cell.style.backgroundColor = "#111";
+    cell.style.outline = "1px solid #d4af37";
+  });
+
+  const editButton = row.querySelector(".btn-warning");
+  editButton.textContent = "Save Changes";
+  editButton.onclick = () => saveChanges(id);
+}
+
+function saveChanges(id) {
+  const row = document.querySelector(`[data-id='${id}']`);
+  const cells = row.querySelectorAll("td");
+  const data = {
+    name: cells[0].innerText.trim(),
+    email: cells[1].innerText.trim(),
+    phone: cells[2].innerText.trim(),
+    date: cells[3].innerText.trim(),
+    time: cells[4].innerText.trim(),
+    guests: cells[5].innerText.trim(),
+    with_wine: cells[6].innerText.trim(),
+    without_wine: cells[7].innerText.trim(),
+    total: cells[8].innerText.trim(),
+    res_pin: cells[9].innerText.trim()
+  };
+
+  fetch(`/admin/update/${id}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(response => {
+    alert(response.message || "Booking updated!");
+    location.reload();
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Error saving booking.");
+  });
+}
+
+function deleteBooking(id) {
+  if (!confirm("Delete this booking?")) return;
+  fetch(`/admin/delete/${id}`, { method: "POST" })
+  .then(() => location.reload())
+  .catch(err => console.error(err));
+}
+
+function confirmBooking(id) {
+  fetch(`/admin/confirm/${id}`, { method: "POST" })
+  .then(() => location.reload())
+  .catch(err => console.error(err));
+}
+</script>
 </body>
 </html>
 

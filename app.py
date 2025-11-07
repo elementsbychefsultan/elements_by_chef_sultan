@@ -34,7 +34,7 @@ def booking():
     booked_guests = c.fetchone()[0] or 0
     conn.close()
 
-    if booked_guests + guests > 33:
+    if booked_guests + guests > 45:
         return render_template("booking.html", error="Fully booked, please choose another date or time.")
 
     # ---- Pricing ----
@@ -174,6 +174,29 @@ def admin_confirm_booking(id):
     conn.commit()
     conn.close()
     return redirect(url_for("admin_dashboard"))
+from flask import request, jsonify
+
+@app.route('/admin/update/<int:booking_id>', methods=['POST'])
+def update_booking(booking_id):
+    data = request.get_json()
+    booking = Booking.query.get(booking_id)
+    if not booking:
+        return jsonify({'message': 'Booking not found'}), 404
+
+    booking.name = data.get('name', booking.name)
+    booking.email = data.get('email', booking.email)
+    booking.phone = data.get('phone', booking.phone)
+    booking.date = data.get('date', booking.date)
+    booking.time = data.get('time', booking.time)
+    booking.guests = data.get('guests', booking.guests)
+    booking.with_wine = data.get('with_wine', booking.with_wine)
+    booking.without_wine = data.get('without_wine', booking.without_wine)
+    booking.total = data.get('total', booking.total)
+    booking.res_pin = data.get('res_pin', booking.res_pin)
+
+    db.session.commit()
+    return jsonify({'message': 'Booking updated successfully!'})
+
 # ===== REFRESH BOOKINGS (Admin) =====
 @app.route("/admin_refresh")
 def admin_refresh():

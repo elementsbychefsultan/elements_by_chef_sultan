@@ -1,243 +1,225 @@
-Nano<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8">
   <title>Admin Dashboard | Elements by Chef Sultan</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<div id="date-controls" style="margin-bottom: 25px;">
+  <button onclick="setAllowedDays()">🟡 Set Allowed Weekdays</button>
+  <button onclick="setDateRange()">🟢 Set Allowed Date Range</button>
+  <button onclick="resetSettings()">🔴 Reset All Restrictions</button>
+</div>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sortable/0.8.0/js/sortable.min.js"></script>
   <style>
-    :root {
-      --bg: #000;
-      --fg: #ffd54a;
-      --fg-dim: #b89529;
-      --cell: #111;
-      --line: #7a5d00;
-      --danger: #e0564a;
-      --ok: #2ecc71;
-    }
-    * { box-sizing: border-box; }
     body {
-      margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI 
-Emoji";
-      background: var(--bg);
-      color: var(--fg);
+      background-color: #000;
+      color: #d4af37;
+      font-family: 'Georgia', serif;
       text-align: center;
-    }
-    header {
-      padding: 28px 16px 8px;
+      margin: 0;
+      padding: 20px;
     }
     h1 {
-      margin: 0 0 18px;
-      font-size: clamp(28px, 4vw, 42px);
-      letter-spacing: 1px;
-      text-shadow: 0 0 10px var(--fg-dim);
+      color: #f5d76e;
+      margin-bottom: 30px;
     }
-    .bar {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center;
-      padding: 10px 16px;
-      background: var(--fg); color: #000; border: 0; border-radius: 10px;
-      font-weight: 700; cursor: pointer;
-    }
-    .btn:hover { filter: brightness(0.95); }
-    .btn--danger { background: var(--danger); color: #fff; }
-    .btn--ghost { background: transparent; color: var(--fg); border: 1px solid var(--line); }
-    main { padding: 0 12px 40px; }
-    .table-wrap { overflow-x: auto; }
     table {
-      width: 100%;
-      min-width: 1100px;
+      width: 95%;
+      margin: auto;
       border-collapse: collapse;
-      background: var(--bg);
-      margin: 0 auto;
+      box-shadow: 0 0 10px #d4af37;
     }
-    thead th {
-      position: sticky; top: 0; z-index: 1;
-      background: #0a0a0a;
-      font-size: 13px;
-      padding: 10px 8px;
-      border-bottom: 2px solid var(--line);
-      border-top: 1px solid var(--line);
+    th, td {
+      border: 1px solid #d4af37;
+      padding: 10px;
+      text-align: center;
     }
-    tbody td {
-      background: var(--cell);
-      border-bottom: 1px solid var(--line);
-      border-right: 1px solid var(--line);
-      padding: 10px 8px;
-      font-size: 14px;
+    th {
+      background-color: #111;
+      color: #f5d76e;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      cursor: pointer;
     }
-    tbody tr:hover td { background: #141414; }
-    td.num { text-align: right; }
-    td.actions { white-space: nowrap; }
-    .chip {
+    tr:nth-child(even) { background-color: #111; }
+    tr:hover { background-color: #222; }
+    input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: #d4af37;
+      text-align: center;
+      outline: none;
+    }
+    button {
+      background-color: #d4af37;
+      color: #000;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover { background-color: #b89c30; }
+    .logout {
+      color: #d4af37;
+      text-decoration: none;
+      border: 1px solid #d4af37;
+      padding: 8px 14px;
+      border-radius: 5px;
       display: inline-block;
-      padding: 4px 8px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      font-size: 12px;
-      color: var(--fg);
+      margin-bottom: 20px;
     }
-    .chip--promo { color: #8ad3ff; border-color: #3a7ea3; }
-    .chip--confirmed { color: var(--ok); border-color: var(--ok); }
-    .grid-actions {
-      display: inline-grid;
-      grid-template-columns: 1fr;
-      gap: 6px;
+    .logout:hover {
+      background-color: #d4af37;
+      color: #000;
     }
-    .btn-mini { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
     tfoot td {
-      padding: 14px 8px;
-      border-top: 2px solid var(--line);
-      background: #0a0a0a;
-      font-weight: 700;
+      font-weight: bold;
+      background-color: #111;
+      color: #f5d76e;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>ADMIN DASHBOARD</h1>
-    <div class="bar">
-      <form action="{{ url_for('admin_logout') }}" method="post">
-        <button class="btn" type="submit">Logout</button>
-      </form>
-      <a class="btn btn--ghost" href="{{ url_for('admin_dashboard') }}">Refresh</a>
-    </div>
-  </header>
+  <h1>Admin Dashboard</h1>
+<div style="
+  background-color:#111;
+  border:1px solid #d4af37;
+  color:#f5d76e;
+  padding:10px;
+  margin:15px auto;
+  width:80%;
+  border-radius:8px;
+  box-shadow:0 0 10px #d4af37;
+  font-size:1.1rem;
+">
+  <strong>Active Booking Rules:</strong><br>
+  Open on <span style="color:#ffd700;">{{ allowed_days | join(', ') }}</span><br>
+  From <span style="color:#ffd700;">{{ start_date }}</span> to <span style="color:#ffd700;">{{ end_date }}</span>
+</div>
 
-  <main>
-    <div class="table-wrap">
-      <table aria-label="Bookings">
-        <thead>
-          <tr>
-            <th style="min-width:90px;">NAME</th>
-            <th style="min-width:170px;">EMAIL</th>
-            <th style="min-width:130px;">PHONE</th>
-            <th style="min-width:110px;">DATE</th>
-            <th style="min-width:90px;">TIME</th>
-            <th style="min-width:80px;">GUESTS</th>
-            <th style="min-width:110px;">WITH<br/>WINE</th>
-            <th style="min-width:120px;">WITHOUT<br/>WINE</th>
-            <th style="min-width:110px;">TOTAL</th>
-            <th style="min-width:160px;">RES-PIN</th>
-            <th style="min-width:140px;">ACTIONS</th>
-          </tr>
-        </thead>
-        <tbody>
-          {# rows: id(0), name(1), email(2), phone(3), date(4), time(5),
-                   guests(6), with_wine(7), without_wine(8), promo(9), total(10), reference(11) #}
-          {% for b in bookings %}
-          <tr data-id="{{ b[0] }}">
-            <td>{{ b[1] }}</td>
-            <td>{{ b[2] }}</td>
-            <td>{{ b[3] }}</td>
-            <td>{{ b[4] }}</td>
-            <td>{{ b[5] }}</td>
-            <td class="num">{{ b[6] }}</td>
-            <td class="num">{{ "%.1f"|format(b[7]) }}</td>
-            <td class="num">{{ "%.1f"|format(b[8]) }}</td>
-            <td class="num">{{ "%.2f"|format(b[10]) }}</td>
-            <td>
-              {% if b[9] and b[9]|string|upper == "CONFIRMED" %}
-                <span class="chip chip--confirmed">CONFIRMED</span><br/>
-              {% elif b[9] %}
-                <span class="chip chip--promo">{{ b[9] }}</span><br/>
-              {% endif %}
-              <strong>{{ b[11] }}</strong>
-            </td>
-            <td class="actions">
-            <button class="btn btn-mini btn-warning" onclick="enableEdit('{{ b[0] }}')">Edit</button>
-            <button class="btn btn-mini btn-danger" onclick="deleteBooking('{{ b[0] }}')">Delete</button>
-            <button class="btn btn-mini btn-success" onclick="confirmBooking('{{ b[0] }}')">Confirm</button>
-            </td>
-            <td class="actions">
-              <div class="grid-actions">
-          </tr>
-          {% endfor %}
-        </tbody>
+  <a href="{{ url_for('admin_logout') }}" class="logout">Logout</a>
 
-        {% if bookings and bookings|length %}
-        <tfoot>
-          <tr>
-            <td colspan="8" style="text-align:right;">Total revenue shown:</td>
-            <td class="num">
-              {{
-                bookings | map(attribute=10) | sum | round(2)
-              }}
-            </td>
-            <td colspan="2"></td>
-          </tr>
-        </tfoot>
-        {% endif %}
-      </table>
-    </div>
-  </main>
+  <table id="bookingsTable" class="sortable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Meal Guests</th>
+        <th>Drinks Guests</th>
+        <th>Total (£)</th>
+        <th>Reservation Code</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for booking in bookings %}
+      <tr data-id="{{ booking[0] }}">
+        <td>{{ booking[0] }}</td>
+        <td><input value="{{ booking[1] }}"></td>
+        <td><input value="{{ booking[2] }}"></td>
+        <td><input value="{{ booking[3] }}"></td>
+        <td><input value="{{ booking[4] }}"></td>
+        <td><input value="{{ booking[5] }}"></td>
+        <td><input value="{{ booking[6] }}"></td>
+        <td><input value="{{ booking[7] }}"></td>
+        <td><input value="{{ booking[8] }}"></td>
+        <td>{{ booking[9] }}</td>
+        <td>
+          <button onclick="saveBooking({{ booking[0] }})">💾 Save</button>
+          <button onclick="deleteBooking({{ booking[0] }})">🗑 Delete</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+<tfoot>
+    <tr>
+        <td colspan="6" style="text-align:right; font-weight:bold;">Totals:</td>
+        <td>{{ bookings | sum(attribute=6) }}</td>
+        <td>{{ bookings | sum(attribute=7) }}</td>
+        <td>£{{ "%.2f"|format(bookings | sum(attribute=8)) }}</td>
+        <td colspan="2"></td>
+    </tr>
+</tfoot>
+
+  </table>
+
+  <script src="{{ url_for('static', filename='admin.js') }}"></script>
 <script>
-function enableEdit(id) {
-  const row = document.querySelector(`[data-id='${id}']`);
-  if (!row) return;
-
-  const cells = row.querySelectorAll("td:not(:last-child)");
-  cells.forEach(cell => {
-    cell.contentEditable = true;
-    cell.style.backgroundColor = "#111";
-    cell.style.outline = "1px solid #d4af37";
-  });
-
-  const editButton = row.querySelector(".btn-warning");
-  editButton.textContent = "Save Changes";
-  editButton.onclick = () => saveChanges(id);
-}
-
-function saveChanges(id) {
-  const row = document.querySelector(`[data-id='${id}']`);
-  const cells = row.querySelectorAll("td");
-  const data = {
-    name: cells[0].innerText.trim(),
-    email: cells[1].innerText.trim(),
-    phone: cells[2].innerText.trim(),
-    date: cells[3].innerText.trim(),
-    time: cells[4].innerText.trim(),
-    guests: cells[5].innerText.trim(),
-    with_wine: cells[6].innerText.trim(),
-    without_wine: cells[7].innerText.trim(),
-    total: cells[8].innerText.trim(),
-    res_pin: cells[9].innerText.trim()
-  };
-
-  fetch(`/admin/update/${id}`, {
+function setAllowedDays() {
+  const input = prompt("Enter allowed weekdays as numbers (0=Sun, 6=Sat). Example: 4,5,6 for Thu-Fri-Sat");
+  if (!input) return;
+  const days = input.split(",").map(x => parseInt(x.trim()));
+  fetch("/admin/set_weekdays", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ allowed_days: days })
   })
-  .then(res => res.json())
-  .then(response => {
-    alert(response.message || "Booking updated!");
-    location.reload();
-  })
-  .catch(err => {
-    console.error(err);
-    alert("Error saving booking.");
-  });
+  .then(r => r.json())
+  .then(res => alert(res.message || "Updated!"));
 }
 
-function deleteBooking(id) {
-  if (!confirm("Delete this booking?")) return;
-  fetch(`/admin/delete/${id}`, { method: "POST" })
-  .then(() => location.reload())
-  .catch(err => console.error(err));
+function setDateRange() {
+  const start = prompt("Enter start date (YYYY-MM-DD)", "2025-12-11");
+  const end = prompt("Enter end date (YYYY-MM-DD)", "2026-02-14");
+  if (!start || !end) return;
+  fetch("/admin/set_date_range", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ start_date: start, end_date: end })
+  })
+  .then(r => r.json())
+  .then(res => alert(res.message || "Date range updated!"));
 }
 
-function confirmBooking(id) {
-  fetch(`/admin/confirm/${id}`, { method: "POST" })
-  .then(() => location.reload())
-  .catch(err => console.error(err));
+function resetSettings() {
+  if (!confirm("Reset all booking restrictions?")) return;
+  fetch("/admin/reset_settings", { method: "POST" })
+  .then(r => r.json())
+  .then(res => alert(res.message || "Reset complete!"));
 }
 </script>
+<script>
+function setAllowedDays() {
+  const input = prompt("Enter allowed weekdays (0=Sun, 6=Sat). Example: 4,5,6 for Thu-Fri-Sat");
+  if (!input) return;
+  const days = input.split(",").map(x => parseInt(x.trim()));
+  fetch("/admin/set_weekdays", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ allowed_days: days })
+  })
+  .then(r => r.json())
+  .then(res => alert(res.message || "Updated!"));
+}
+
+function setDateRange() {
+  const start = prompt("Enter start date (YYYY-MM-DD)", "2025-12-11");
+  const end = prompt("Enter end date (YYYY-MM-DD)", "2026-02-14");
+  if (!start || !end) return;
+  fetch("/admin/set_date_range", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ start_date: start, end_date: end })
+  })
+  .then(r => r.json())
+  .then(res => alert(res.message || "Date range updated!"));
+}
+
+function resetSettings() {
+  if (!confirm("Reset all booking restrictions?")) return;
+  fetch("/admin/reset_settings", { method: "POST" })
+  .then(r => r.json())
+  .then(res => alert(res.message || "Reset complete!"));
+}
+</script>
+
 </body>
 </html>
 

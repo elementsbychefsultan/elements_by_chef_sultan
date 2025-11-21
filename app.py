@@ -1,122 +1,163 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import sqlite3
+import uuid
 from datetime import datetime
-        
+
 app = Flask(__name__)
 app.secret_key = "Mr.Ss-secret-key-elements"
+
+
 # ========== HOME ==========
 @app.route("/")
 def index():
     return render_template("index.html")
-        
-        
+
+
 # ========== BOOKING ==========
-@app.route("/booking", methods=["GET", "POST"])
+@app.route("/booking", methods=["GET"])
+def booking_page():
+    return render_template("booking.html")
+
+
+@app.route("/booking", methods=["POST"])
 def booking():
-    if request.method == "GET":
-        return render_template("booking.html")
-
-    # ---- Read form data ----
-    name = request.form.get("name")
-    email = request.form.get("email")
-    phone = request.form.get("phone")
-    date = request.form.get("date")
-    time = request.form.get("time")
-    guests = int(request.form.get("guests", 0))
-    with_wine = float(request.form.get("with_wine", 0))
-    without_wine = float(request.form.get("without_wine", 0))
-    promo = (request.form.get("promo") or "").strip().lower()
-
-    # ---- Booking limit check ----
-    conn = sqlite3.connect("elements.db")
-    c = conn.cursor()
-    c.execute("SELECT SUM(guests) FROM bookings WHERE date=? AND time=?", (date, time))
-    booked_guests = c.fetchone()[0] or 0
-    conn.close()
-
-    if booked_guests + guests > 45:
-        return render_template("booking.html", error="Fully booked, please choose another date or time.")
-
-    # ---- Pricing ----
-    PRICE_WITH_WINE = 195
-    PRICE_WITHOUT_WINE = 160
-
-    base_total = (with_wine * PRICE_WITH_WINE) + (without_wine * PRICE_WITHOUT_WINE)
-    discount_pct = 0
-
-    # Auto discounts (no promo)
-    if guests >= 6:
-        discount_pct = 10
-    elif 4 <= guests <= 5:
-        discount_pct = 7
-    elif guests <= 3:
-        if promo == "elements@10":
-            discount_pct = 10
-        elif promo == "elements@7":
-            discount_pct = 7
-
-    # Apply discount
-    total = base_total - (base_total * discount_pct / 100)
-
-    # ---- Generate reservation pin ----
+    import uuid
     from datetime import datetime
-    res_pin = f"RES-{name[:2].upper()}{int(datetime.now().timestamp())}"
 
-    # ---- Save booking ----
-    conn = sqlite3.connect("elements.db")
-    c = conn.cursor()
-    query = """
-    INSERT INTO bookings (name, email, phone, date, time, guests, with_wine, without_wine, promo, total, res_pin)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """
-    c.execute(query, (name, email, phone, date, time, guests, with_wine, without_wine, promo, total, res_pin))
-    conn.commit()
-    conn.close()
+    try:
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip()
+        phone = request.form.get("phone", "").strip()
+        date_str = request.form.get("date")
+        time = request.form.get("time")
+        meal_guests = int(request.form.get("meal_guests", 0))
+        drinks_only = int(request.form.get("drinks_only", 0))
+        promo = request.form.get("promo", "").strip()
+        res_pin = "RES-" + str(uuid.uuid4())[:8].upper()
 
-    # ---- Show thank-you page ----
-    booking = {
-        "name": name,
-        "email": email,
-        "date": date,
-        "time": time,
-        "guests": guests,
-        "total": total,
-        "res_pin": res_pin
-    }
+        PRICE_PER_MEAL = 130
+        total = meal_guests * PRICE_PER_MEAL
+        total_guests = meal_guests + drinks_only
 
-    return render_template("thankyou.html", booking=booking)
+        # Save to database
+        conn = sqlite3.connect("elements.db")
+        c = conn.cursor()
+        c.execute("""
+            INSERT INTO bookings (name, email, phone, date, time, guests_meal, drinks_only, total, promo, 
+res_pin)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (name, email, phone, date_str, time, meal_guests, drinks_only, total, promo, res_pin))
+        conn.commit()
+        conn.close()
 
-    # ---- Save booking ----
-    query = """
-        INSERT INTO bookings
-        (name, email, phone, date, time, guests, with_wine, without_wine, promo, total, res_pin)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """
-    c.execute(
-        query,
-        (name, email, phone, date, time, guests, with_wine, without_wine, promo, total, res_pin)
-    )
-    conn.commit()
-    conn.close()
+        return render_template(
+            "thank_you.html",
+            name=name,
+            total=total,
+            total_guests=total_guests,
+            meal_guests=meal_guests,
+            drinks_only=drinks_only,
+            res_pin=res_pin
+        )
 
-    # ---- Prepare confirmation data ----
-    booking = {
-        "name": name,
-        "email": email,
-        "phone": phone,
-        "date": date,
-        "time": time,
-        "guests": guests,
-        "with_wine": with_wine,
-        "without_wine": without_wine,
-        "promo": promo,
-        "discount_pct": discount_pct,
-        "total": total,
-        "res_pin": res_pin,
-    }
+    except Exception as e:
+        print("❌ Booking Error:", e)
+        import traceback
+        traceback.print_exc()
+        return f"Something went wrong while processing your booking: {e}", 500
 
-    return render_template("thankyou.html", booking=booking)
-    
+        # --- Pricing logic ---
+        PRICE_PER_MEAL = 130
+        total = meal_guests * PRICE_PER_MEAL
+
+        total_guests = meal_guests + drinks_only
+
+        # --- Save booking ---
+        conn = sqlite3.connect("elements.db")
+        c = conn.cursor()
+        c.execute("""
+         INSERT INTO bookings
+          (name, email, phone, date, time, guests_meal, guests_drinks, total, promo, res_pin)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (name, email, phone, date_str, time, meal_guests, drinks_only, total, promo, res_pin))
+
+        return render_template(
+            "thank_you.html",
+            name=name,
+            total=total,
+            total_guests=total_guests,
+            meal_guests=meal_guests,
+            drinks_only=drinks_only,
+            res_pin=res_pin
+        )
+
+    except Exception as e:
+        print("Booking processing error:", e)
+        import traceback
+        traceback.print_exc()
+        return f"Something went wrong while processing your booking: {e}", 500
+
+        # ===== Load booking restrictions =====
+        conn = sqlite3.connect("elements.db")
+        c = conn.cursor()
+        c.execute("SELECT allowed_days, start_date, end_date FROM settings ORDER BY id DESC LIMIT 1")
+        settings = c.fetchone()
+        conn.close()
+
+        # Default restrictions if none in DB
+        allowed_days = [3, 4, 5]  # Thu, Fri, Sat
+        start_date = datetime(2025, 12, 11)
+        end_date = datetime(2025, 12, 20)
+        if settings and settings[0]:
+            try:
+                allowed_days = json.loads(settings[0])
+            except:
+                pass
+        if settings and settings[1] and settings[2]:
+            start_date = datetime.strptime(settings[1], "%Y-%m-%d")
+            end_date = datetime.strptime(settings[2], "%Y-%m-%d")
+
+        # ===== Validate date =====
+        booking_date = datetime.strptime(date_str, "%Y-%m-%d")
+        today = datetime.today()
+
+        if booking_date < today.replace(hour=0, minute=0, second=0, microsecond=0):
+            return "❌ Booking date cannot be in the past.", 400
+
+        if not (start_date <= booking_date <= end_date):
+            return f"❌ Bookings allowed only between {start_date.date()} and {end_date.date()}.", 400
+
+        if booking_date.weekday() not in allowed_days:
+            return "❌ Bookings allowed only on Thursday, Friday, or Saturday.", 400
+
+        # ===== Save to DB =====
+        conn = sqlite3.connect("elements.db")
+        c = conn.cursor()
+        c.execute("""
+         INSERT INTO bookings
+         (name, email, phone, date, time, meal_guests, drinks_only, total, promo, res_pin)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,(name, email, phone, date_str, time, meal_guests, drinks_only, total, request.form.get("promo"), res_pin))
+        conn.commit()
+        conn.close()
+
+        # ===== Success =====
+        return render_template(
+            "thank_you.html",
+            name=name,
+            total=total,
+            res_pin=res_pin,
+            meal_guests=meal_guests,
+            drinks_only=drinks_only,
+            total_guests=total_guests
+        )
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return f"Something went wrong while processing your booking: {e}", 500
+
+
 # ========== ADMIN LOGIN ==========
 @app.route("/admin/login", methods=["GET", "POST"])
 def admin_login():
@@ -128,90 +169,174 @@ def admin_login():
             session["admin"] = True
             return redirect(url_for("admin_dashboard"))
         else:
-             return render_template("admin_login.html", error="Invalid credentials")
+            return render_template("admin_login.html", error="Invalid credentials")
 
     return render_template("admin_login.html")
-@app.route("/admin/logout")  
+
+
+@app.route("/admin/logout")
 def admin_logout():
     session.pop("admin", None)
     return redirect(url_for("admin_login"))
-    
-    
+
+
 # ========== ADMIN DASHBOARD ==========
 @app.route("/admin/dashboard", methods=["GET"])
 def admin_dashboard():
     if not session.get("admin"):
         return redirect(url_for("admin_login"))
+
     conn = sqlite3.connect("elements.db")
     c = conn.cursor()
     c.execute("SELECT * FROM bookings ORDER BY date, time")
     bookings = c.fetchall()
+
+    # Fetch current settings (allowed days + date range)
+    c.execute("SELECT allowed_days, start_date, end_date FROM settings ORDER BY id DESC LIMIT 1")
+    row = c.fetchone()
     conn.close()
-    return render_template("admin_dashboard.html",
-bookings=bookings)
 
-# ========== ADMIN ACTION ROUTES ==========
-@app.route("/admin/save/<int:id>", methods=["POST"])
-def admin_save_booking(id):
-    # No field editing yet—just redirect (keeps the button alive)
-    return redirect(url_for("admin_dashboard"))
+    if row:
+        import json
+        allowed_days = json.loads(row[0])
+        start_date = row[1]
+        end_date = row[2]
+    else:
+        allowed_days = [4, 5, 6]
+        start_date = "2025-12-11"
+        end_date = "2026-02-14"
 
+    # Convert days to human names
+    day_names = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+    allowed_names = [day_names[d] for d in allowed_days]
+
+    return render_template(
+        "admin_dashboard.html",
+        bookings=bookings,
+        allowed_days=allowed_names,
+        start_date=start_date,
+        end_date=end_date
+    )
+
+
+# ========== EDIT BOOKING ==========
+@app.route("/admin/update/<int:id>", methods=["POST"])
+def admin_update_booking(id):
+    data = request.get_json()
+    try:
+        conn = sqlite3.connect("elements.db")
+        c = conn.cursor()
+        c.execute("""
+            UPDATE bookings
+            SET name = ?, email = ?, phone = ?, date = ?, time = ?,
+                guests_meal = ?, guests_drinks = ?, total = ?
+            WHERE id = ?
+        """, (
+            data["name"], data["email"], data["phone"],
+            data["date"], data["time"],
+            data["guests_meal"], data["guests_drinks"], data["total"], id
+        ))
+        conn.commit()
+        conn.close()
+        return {"success": True, "message": "Booking updated successfully!"}
+    except Exception as e:
+        print("Error updating booking:", e)
+        return {"success": False, "message": str(e)}, 500
+
+
+# ========== DELETE BOOKING ==========
 @app.route("/admin/delete/<int:id>", methods=["POST"])
 def admin_delete_booking(id):
-    conn = sqlite3.connect("elements.db")
-    c = conn.cursor()
-    c.execute("DELETE FROM bookings WHERE id = ?", (id,))
-    conn.commit()
-    conn.close()
-    return redirect(url_for("admin_dashboard"))
+    try:
+        conn = sqlite3.connect("elements.db")
+        c = conn.cursor()
+        c.execute("DELETE FROM bookings WHERE id = ?", (id,))
+        conn.commit()
+        conn.close()
+        return {"success": True}
+    except Exception as e:
+        print("Error deleting booking:", e)
+        return {"success": False, "message": str(e)}, 500
+import json
+from flask import jsonify, request
 
-@app.route("/admin/confirm/<int:id>", methods=["POST"])
-def admin_confirm_booking(id):
-    conn = sqlite3.connect("elements.db")
-    c = conn.cursor()
-    # ⬇️ THIS LINE MUST BE ON ONE LINE (no line break inside the quotes)
-    c.execute("UPDATE bookings SET promo = 'CONFIRMED' WHERE id = ?", (id,))
-    conn.commit()
-    conn.close()
-    return redirect(url_for("admin_dashboard"))
-from flask import request, jsonify
 
-@app.route('/admin/update/<int:booking_id>', methods=['POST'])
-def update_booking(booking_id):
+
+# ===== UPDATE WEEKDAYS =====
+@app.route("/admin/set_weekdays", methods=["POST"])
+def set_weekdays():
     data = request.get_json()
-    booking = Booking.query.get(booking_id)
-    if not booking:
-        return jsonify({'message': 'Booking not found'}), 404
-
-    booking.name = data.get('name', booking.name)
-    booking.email = data.get('email', booking.email)
-    booking.phone = data.get('phone', booking.phone)
-    booking.date = data.get('date', booking.date)
-    booking.time = data.get('time', booking.time)
-    booking.guests = data.get('guests', booking.guests)
-    booking.with_wine = data.get('with_wine', booking.with_wine)
-    booking.without_wine = data.get('without_wine', booking.without_wine)
-    booking.total = data.get('total', booking.total)
-    booking.res_pin = data.get('res_pin', booking.res_pin)
-
-    db.session.commit()
-    return jsonify({'message': 'Booking updated successfully!'})
-
-# ===== REFRESH BOOKINGS (Admin) =====
-@app.route("/admin_refresh")
-def admin_refresh():
-    # Only allow refresh if logged in as admin
-    if not session.get("logged_in"):
-        return redirect(url_for("admin_login"))
+    allowed_days = json.dumps(data.get("allowed_days", [4, 5, 6]))
 
     conn = sqlite3.connect("elements.db")
     c = conn.cursor()
-    c.execute("SELECT * FROM bookings ORDER BY date, time")
-    bookings = c.fetchall()
+    c.execute("UPDATE settings SET allowed_days=? WHERE id=1", (allowed_days,))
+    conn.commit()
     conn.close()
 
-    return render_template("admin_dashboard.html", bookings=bookings)
+    return jsonify({"success": True, "message": "Allowed weekdays updated!"})
+
+
+# ===== UPDATE DATE RANGE =====
+@app.route("/admin/set_date_range", methods=["POST"])
+def set_date_range():
+    data = request.get_json()
+    start_date = data.get("start_date")
+    end_date = data.get("end_date")
+
+    conn = sqlite3.connect("elements.db")
+    c = conn.cursor()
+    c.execute("UPDATE settings SET start_date=?, end_date=? WHERE id=1", (start_date, end_date))
+    conn.commit()
+    conn.close()
+
+    return jsonify({"success": True, "message": "Date range updated!"})
+
+
+# ===== RESET SETTINGS =====
+@app.route("/admin/reset_settings", methods=["POST"])
+def reset_settings():
+    conn = sqlite3.connect("elements.db")
+    c = conn.cursor()
+    c.execute("UPDATE settings SET allowed_days=?, start_date=?, end_date=?", 
+              (json.dumps([0,1,2,3,4,5,6]), None, None))
+    conn.commit()
+    conn.close()
+    return jsonify({"success": True, "message": "All booking restrictions cleared!"})
+
+
+# ========== MAIN ==========
+from flask import jsonify
+
+@app.route("/admin/get_settings", methods=["GET"])
+def get_settings():
+    """Return allowed weekdays and date range as JSON."""
+    conn = sqlite3.connect("elements.db")
+    c = conn.cursor()
+    c.execute("SELECT allowed_days, start_date, end_date FROM settings ORDER BY id DESC LIMIT 1")
+    row = c.fetchone()
+    conn.close()
+
+    if not row:
+        return jsonify({
+            "allowed_days": [4, 5, 6],  # Thu, Fri, Sat default
+            "start_date": "2025-12-11",
+            "end_date": "2025-12-20"
+        })
+
+    import json
+    try:
+        allowed_days = json.loads(row[0])
+    except Exception:
+        allowed_days = [4, 5, 6]
+
+    return jsonify({
+        "allowed_days": allowed_days,
+        "start_date": row[1],
+        "end_date": row[2]
+    })
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
+        
+        

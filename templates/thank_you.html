@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Booking Confirmed | Elements by Chef Sultan</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #d4af37;
+            font-family: 'Georgia', serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            color: #f5d76e;
+            margin-top: 100px;
+        }
+        p {
+            font-size: 1.2em;
+        }
+        strong {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Thank You, {{ name }}!</h1>
+    <p>We receved your booking.</p>
+<div style="margin-top: 20px; text-align: center;">
+  <p style="color: gold; font-size: 18px;">
+    To secure your reservation, please complete your prepayment below:
+  </p>
+  <a href="https://square.link/u/KJ1r83AE" 
+     style="background-color: gold; color: black; padding: 10px 20px; 
+            border-radius: 8px; font-weight: bold; text-decoration: none;">
+     🔒 Secure Payment
+  </a>
+  <p style="margin-top: 10px; font-size: 12px; color: #ccc;">
+    Your reservation will be confirmed upon payment completion.
+  </p>
+</div>
+
+    <p><strong>Reservation Code:</strong> {{ res_pin }}</p>
+    <p><strong>Total Guests:</strong> {{ total_guests }}</p>
+    <p><strong>Meal Guests (£130 each):</strong> {{ meal_guests }}</p>
+    <p><strong>Drinks-Only Guests:</strong> {{ drinks_only }}</p>
+    <p><strong>Total Due:</strong> £{{ total }}</p>
+    <p>We look forward to welcoming you at Elements.</p>
+</body>
+</html>
+

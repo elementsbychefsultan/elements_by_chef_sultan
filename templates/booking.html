@@ -123,21 +123,22 @@ pointer-events:none;">
 </div>
 
     <label for="time"></label>
-</select>
 <select name="time" required>
-    <option value="" disabled selected>Select a time</option>
-    <option value="19:30">19:30</option>
-    <option value="20:30">20:30</option>
+  <option value="" disabled selected>Select a time</option>
+  <option value="18:30">18:30</option>
+  <option value="19:30">19:30</option>
+  <option value="20:30">20:30</option>
 </select>
 
-    <label for="guests">Number of Guests</label>
-    <input type="number" id="guests" name="guests" min="2" max="6" required><br>
-
-    <label for="with_wine">Guests With Wine (£195 each):</label>
-    <input type="number" id="with_wine" name="with_wine" min="0" max="6" value="0" required><br>
-
-    <label for="without_wine">Guests Without Wine (£160 each):</label>
-    <input type="number" id="without_wine" name="without_wine" min="0" max="6" value="0" required><br>
+<!-- === DINING EXPERIENCE === -->
+<label for="meal_guests">Number of Dining Guests (£130 per person):</label>
+<input type="number" id="meal_guests" name="meal_guests" min="0" max="8" value="0" required>
+<!-- === DRINKS ONLY === -->
+<label for="drinks_only">Number of Drinks-Only Guests:</label>
+<input type="number" id="drinks_only" name="drinks_only" min="0" max="8" value="0" required>
+<p style="color: #d4af37; font-size: 0.9rem; margin-top: 10px;">
+Drinks-only guests can order from our bar menu, located on the main page.
+</p>
 
     <input type="text" name="promo" placeholder="Promo Code (optional)">
 
@@ -145,111 +146,64 @@ pointer-events:none;">
         Bookings have a 15-minute grace period.  
         Cancellations must be made 48 hours prior via email.  
         Children under the age of 12 are not allowed.
+        Dress Code Smart Casual.
     </p>
 
     <button type="submit">Proceed to Booking</button>
 </form>
 
 <script>
-    // Adjust wine counts dynamically
-    document.getElementById("with_wine").addEventListener("input", function() {
-        const totalGuests = parseInt(document.getElementById("guests").value) || 0;
-        const withWine = parseInt(this.value) || 0;
-        const withoutWineField = document.getElementById("without_wine");
-        withoutWineField.max = totalGuests - withWine;
-    });
-    document.getElementById("without_wine").addEventListener("input", function() {
-        const totalGuests = parseInt(document.getElementById("guests").value) || 0;
-        const withoutWine = parseInt(this.value) || 0;
-        const withWineField = document.getElementById("with_wine");
-        withWineField.max = totalGuests - withoutWine;
-    });
-
-    // Restrict date selection to valid Fridays & Saturdays in event windows
-    const allowedRanges = [
-        [new Date("2025-11-14"), new Date("2025-12-20")],
-        [new Date("2026-01-09"), new Date("2026-02-14")]
-    ];
-
-    const dateInput = document.getElementById("date");
-    dateInput.addEventListener("input", function() {
-        const selectedDate = new Date(this.value);
-        const day = selectedDate.getDay(); // 0=Sun ... 6=Sat
-        let valid = false;
-        for (const [start, end] of allowedRanges) {
-            if (selectedDate >= start && selectedDate <= end && (day === 5 || day === 6)) {
-                valid = true;
-                break;
-            }
-    });
-
-    // Limit selectable dates
-    dateInput.setAttribute("min", "2025-11-14");
-    dateInput.setAttribute("max", "2026-02-14");
-</script>
-<script>
-  // Ensure today's date is the minimum and no default is pre-selected
-  document.addEventListener("DOMContentLoaded", function() {
-    const today = new Date().toISOString().split('T')[0];
-    const dateInput = document.getElementById('date');
-    if (dateInput) {
-      dateInput.setAttribute('min', today);
-      dateInput.value = ""; // make sure it’s blank
-    }
-  });
-</script>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
   const dateInput = document.getElementById("date");
   if (!dateInput) return;
 
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  dateInput.min = `${yyyy}-${mm}-${dd}`;
+  try {
+    // Fetch live settings from Flask
+    const response = await fetch("/admin/get_settings");
+    const data = await response.json();
 
-  // Disable all non-Friday/Saturday days dynamically
-  dateInput.addEventListener("input", function () {
-    const selected = new Date(this.value);
-    const day = selected.getDay(); // 0=Sun ... 6=Sat
-    if (day !== 5 && day !== 6) {
-      // find nearest Friday/Saturday ahead
-      const diff = day < 5 ? 5 - day : (day === 6 ? 0 : 12 - day);
-      selected.setDate(selected.getDate() + diff);
-      this.value = selected.toISOString().split("T")[0];
-    }
-  });
+    const allowedDays = data.allowed_days; // e.g. [4, 5, 6]
+    const startDate = new Date(data.start_date);
+    const endDate = new Date(data.end_date);
+    const today = new Date();
 
-  dateInput.addEventListener("change", () => {
-    dateInput.style.color = "#d4af37";
-    dateInput.style.backgroundColor = "#000";
-  });
+    // Prevent selecting past days
+    const minDate = startDate < today ? today : startDate;
+
+    // Apply min/max to input
+    dateInput.min = minDate.toISOString().split("T")[0];
+    dateInput.max = endDate.toISOString().split("T")[0];
+
+    // Validate selected date
+    dateInput.addEventListener("input", function () {
+      const selected = new Date(this.value);
+      const day = selected.getDay(); // 0=Sun ... 6=Sat
+
+      if (
+        selected < today ||
+        selected < startDate ||
+        selected > endDate ||
+        !allowedDays.includes(day)
+      ) {
+        alert(
+          "Booking not available for this date. Please select Thursday, Friday, or Saturday within the allowed 
+range."
+        );
+        this.value = "";
+      }
+    });
+
+    // Apply gold styling
+    dateInput.addEventListener("change", () => {
+      dateInput.style.color = "#d4af37";
+      dateInput.style.backgroundColor = "#000";
+    });
+  } catch (err) {
+    console.error("Error loading booking settings:", err);
+  }
 });
 </script>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  const dateInput = document.getElementById("date");
-  if (!dateInput) return;
 
-  // Set allowed range
-  const minDate = new Date("2025-11-14");
-  const maxDate = new Date("2025-12-20");
-  dateInput.min = minDate.toISOString().split("T")[0];
-  dateInput.max = maxDate.toISOString().split("T")[0];
-
-  // Restrict to Fridays & Saturdays only
-  dateInput.addEventListener("input", function () {
-    const selected = new Date(this.value);
-    const day = selected.getDay(); // 0 = Sun ... 6 = Sat
-
-    // If not Friday (5) or Saturday (6), clear selection
-    if (day !== 5 && day !== 6) {
-      this.value = "";
-    }
-  });
-});
-</script>
 </body>
 </html>
 

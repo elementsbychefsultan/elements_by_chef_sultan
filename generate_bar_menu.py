@@ -36,43 +36,44 @@ def divider():
 # Menu structure
 menu = {
     "RED WINES": [
-        "BEEFSTEAK CLUB MALBEC ...... (BTL) £29.00 ...... (GLS) £7.25",
-        "LFE GRAN RES Merlot ......... (BTL) £27.00 ...... (GLS) £6.75"
+       "BEEFSTEAK CLUB MALBEC ...... (BTL) £29.00 .... 175ML(GLS) £7.25",
+       "LFE GRAN RES Merlot ........ (BTL) £27.00 .....175ML(GLS) £6.75"
     ],
     "WHITE WINES": [
-        "Emma Marris Sauvignon Blanc . (BTL) £27.95 ..... (GLS) £7.00",
-        "PINOT GRIGIO BREGANZE ....... (BTL) £26.00 ..... (GLS) £6.50"
+        "Emma Marris Sauvignon Blanc . (BTL) £27.95 .......175ML(GLS) £7.00",
+        "PINOT GRIGIO BREGANZE ....... (BTL) £26.00 .......175ML(GLS) £6.50"
     ],
     "SPIRITS": {
         "GIN": [
-            "Tanqueray London Dry Gin ....................... £9.00",
-            "Marlow Gin Green ................................ £8.50",
-            "Marlow Gin Blue ................................. £9.00"
+            "Tanqueray London Dry Gin ..................... 50ML£9.00",
+            "Marlow Gin Green ..............................50ML£8.50",
+            "Marlow Gin Blue ...............................50ML£9.00"
         ],
         "VODKA": [
-            "Absolut Vodka ................................. £8.40",
-            "Stoli Vodka, Latvia ........................... £8.20"
+            "Absolut Vodka ................................ 50ML£8.40",
+            "Stoli Vodka, Latvia ...........................50ML£8.20"
         ],
         "WHISKY": [
-            "Johnnie Walker Black Label ..................... £9.50",
-            "Glenmorangie Original 12YO ..................... £9.60"
+            "Johnnie Walker Black Label ....................50ML£9.50",
+            "Glenmorangie Original 12YO ....................50ML£9.60"
         ]
     },
     "DESSERT WINE, PORT & COGNAC": [
-        "Luis Felipe Edwards 'Late Harvest' Viognier/Sauvignon Blanc .... £5.00",
-        "Croft Reserve Tawny Port ....................................... £11.00",
-        "Hennessy V ..................................................... £14.00"
+        "Luis Felipe Edwards 'Late Harvest' Viognier/Sauvignon Blanc...50M £5.00",
+        "Croft Reserve Tawny Port ....................................,50ML£11.00",
+        "Hennessy V ...................................................50ML£14.00"
     ],
     "SOFT DRINKS": [
-        "Coca Cola / Diet Coke .......................... £2.50",
-        "Still / Sparkling Water ......................... £1.50",
-        "Tonic / Slimline Tonic ......................... £3.00",
-        "Soda ........................................... £1.50",
-        "Lemonade ....................................... £2.00"
+        "Coca Cola / Diet Coke .......................250ML£2.50",
+        "Still / Sparkling Water .....................250ML£1.50",
+        "Tonic / Slimline Tonic ......................250ML£3.00",
+        "Soda ........................................250ML£1.50",
+        "Lemonade ....................................250ML£2.00"
     ],
     "BAR SNACKS": [
         "Elements Mezze (Chef's Selection) .............. £10.00",
-        "Olives & Nuts Selection ........................ £5.50"
+        "Olives & Nuts Selection ........................ £5.50",
+        "Loaded Nachos................................... £8.50"
     ]
 }
 
@@ -105,7 +106,7 @@ pdf.cell(0, 10, "All prices include VAT. Please ask staff for allergen informati
 align="C")
 
 # Save file
-output_path = "Elements_Bar_Menu_BlackGold_A4_Final.pdf"
+output_path = "static/Bar_Menu.pdf"
 pdf.output(output_path)
 print(f"✅ PDF saved as {output_path}")
 
